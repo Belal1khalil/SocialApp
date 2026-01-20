@@ -223,71 +223,130 @@ export default function ProfilePage() {
       </div>
       {changePasswordMode && (
         <>
-          <div className="fixed inset-0 backdrop-blur-md z-50"></div>
-          <div className="min-w-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-xl z-50">
-            <div>
-              <h1 className="text-2xl font-bold mb-4">Change Password</h1>
-              <div
-                className="absolute top-4 right-4 cursor-pointer"
-                onClick={toggleChangePasswordMode}
-              >
-                <HiX size={24} />
+          {/* Backdrop Overlay */}
+          <div 
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 animate-fadeIn"
+            onClick={toggleChangePasswordMode}
+          ></div>
+          
+          {/* Modal Container */}
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-lg z-50 animate-scaleIn">
+            <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/60 overflow-hidden">
+              {/* Header with Gradient */}
+              <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 p-8 overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-20 translate-x-20"></div>
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-500/20 rounded-full blur-2xl translate-y-10 -translate-x-10"></div>
+                
+                <div className="relative flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-white/20 backdrop-blur-lg rounded-2xl flex items-center justify-center">
+                      <HiOutlineShieldCheck className="text-white" size={28} />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">Change Password</h2>
+                      <p className="text-primary-100 text-sm mt-1">Update your security credentials</p>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={toggleChangePasswordMode}
+                    className="w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-lg rounded-xl flex items-center justify-center transition-all active:scale-95"
+                  >
+                    <HiX className="text-white" size={20} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Form Content */}
+              <div className="p-8">
+                <form onSubmit={formik.handleSubmit} className="space-y-6">
+                  {/* Current Password Field */}
+                  <div className="space-y-2">
+                    <label 
+                      htmlFor="password" 
+                      className="block text-sm font-bold text-gray-700 uppercase tracking-wide"
+                    >
+                      Current Password
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-indigo-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
+                      <div className="relative flex items-center">
+                        <div className="absolute left-4 text-gray-400 group-focus-within:text-primary-600 transition-colors">
+                          <HiOutlineLockClosed size={20} />
+                        </div>
+                        <input
+                          type="password"
+                          name="password"
+                          id="password"
+                          placeholder="Enter your current password"
+                          value={formik.values.password}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:bg-white focus:border-primary-500 focus:outline-none transition-all font-medium text-gray-900 placeholder:text-gray-400"
+                        />
+                      </div>
+                    </div>
+                    {formik.touched.password && formik.errors.password && (
+                      <div className="flex items-start gap-2 text-red-600 text-sm animate-slideDown">
+                        <span className="mt-0.5">⚠️</span>
+                        <span>{formik.errors.password}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* New Password Field */}
+                  <div className="space-y-2">
+                    <label 
+                      htmlFor="new-password" 
+                      className="block text-sm font-bold text-gray-700 uppercase tracking-wide"
+                    >
+                      New Password
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-indigo-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
+                      <div className="relative flex items-center">
+                        <div className="absolute left-4 text-gray-400 group-focus-within:text-primary-600 transition-colors">
+                          <HiOutlineLockClosed size={20} />
+                        </div>
+                        <input
+                          type="password"
+                          name="newPassword"
+                          id="new-password"
+                          placeholder="Enter your new password"
+                          value={formik.values.newPassword}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:bg-white focus:border-primary-500 focus:outline-none transition-all font-medium text-gray-900 placeholder:text-gray-400"
+                        />
+                      </div>
+                    </div>
+                    {formik.touched.newPassword && formik.errors.newPassword && (
+                      <div className="flex items-start gap-2 text-red-600 text-sm animate-slideDown">
+                        <span className="mt-0.5">⚠️</span>
+                        <span>{formik.errors.newPassword}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={toggleChangePasswordMode}
+                      className="flex-1 px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-2xl transition-all active:scale-95"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 px-6 py-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-2xl shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 transform hover:-translate-y-0.5 transition-all active:scale-95"
+                    >
+                      Update Password
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
-            <form action="" onSubmit={formik.handleSubmit}>
-              <div className="password flex flex-col gap-2">
-                <label htmlFor="password" id="password-label">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  id="password"
-                  className="form-control"
-                  placeholder="current password"
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-
-                />
-                {formik.touched.password && formik.errors.password ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    * {formik.errors.password}
-                  </div>
-                )
-                 : null}
-              </div>
-              <div className="new-password flex flex-col gap-2 mt-4">
-                <label htmlFor="new-password" id="new-password-label">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  name="newPassword"
-                  id="new-password"
-                  className="form-control"
-                  placeholder="new password"
-                  value={formik.values.newPassword}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-
-                />
-                {
-                  formik.touched.newPassword && formik.errors.newPassword ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    * {formik.errors.newPassword}
-                  </div>
-                ) : null
-                }
-                
-              </div>
-              <button
-                type="submit"
-                className="mx-auto block mt-6 px-8 py-3.5 bg-linear-to-r from-primary-600 to-primary-700 text-white font-bold rounded-2xl shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40 transform hover:-translate-y-1 transition-all active:scale-95"
-              >
-                change password
-              </button>
-            </form>
           </div>
         </>
       )}
