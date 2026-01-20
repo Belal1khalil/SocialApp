@@ -11,6 +11,7 @@ import {
 } from "react-icons/hi";
 import { RiRocket2Line } from "react-icons/ri";
 import Link from "next/link";
+import ProfileSkeleton from "@/skeleton/ProfileSkeleton";
 
 export default function ProfilePage() {
   const dispatch = useAppDispatch();
@@ -22,10 +23,7 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50/50 flex flex-col items-center justify-center p-4">
-        <div className="w-20 h-20 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
-        <p className="mt-4 text-gray-500 font-medium animate-pulse">Loading your profile...</p>
-      </div>
+     <ProfileSkeleton/>
     );
   }
 
@@ -94,11 +92,9 @@ export default function ProfilePage() {
                     <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
                       {userData.name}
                     </h1>
-                    <div className="hidden md:flex px-3 py-1 bg-primary-50 text-primary-600 text-xs font-bold rounded-full border border-primary-100">
-                      PRO MEMBER
-                    </div>
+                   
                   </div>
-                  <p className="text-lg text-gray-500 font-medium">Digital Content Creator & Developer</p>
+                
                 </div>
 
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
@@ -115,11 +111,9 @@ export default function ProfilePage() {
 
               <div className="flex flex-col gap-3 w-full md:w-auto">
                 <button className="px-8 py-3.5 bg-linear-to-r from-primary-600 to-primary-700 text-white font-bold rounded-2xl shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40 transform hover:-translate-y-1 transition-all active:scale-95">
-                  Edit Profile
+                  change password
                 </button>
-                <button className="px-8 py-3.5 bg-white text-gray-700 font-bold rounded-2xl border border-gray-200 hover:bg-gray-50 transition-all active:scale-95">
-                  Settings
-                </button>
+                
               </div>
             </div>
           </div>
@@ -127,7 +121,7 @@ export default function ProfilePage() {
           {/* Details Grid */}
           <div className="p-8 md:p-12 lg:p-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-gray-50/30">
             {[
-              { label: "Account ID", value: userData._id, icon: HiOutlineIdentification, color: "text-blue-500" },
+              
               { label: "Gender", value: userData.gender.charAt(0).toUpperCase() + userData.gender.slice(1), icon: HiOutlineUser, color: "text-purple-500" },
               { label: "Join Date", value: "January 2026", icon: RiRocket2Line, color: "text-orange-500" },
             ].map((item, idx) => (
