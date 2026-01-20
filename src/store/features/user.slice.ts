@@ -2,6 +2,7 @@ import { userState } from "@/types/user.types";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { apiClient } from "./../../services/api-client";
 import { toast } from "react-toastify";
+
 const initialState: userState = {
   token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
   userData: null,
@@ -52,6 +53,23 @@ export const getProfile = createAsyncThunk("user/getProfile", async () => {
     throw error;
   }
 });
+export const updatePassword = createAsyncThunk(
+  "user/changePassword",
+  async (values: { password: string; newPassword: string }) => {
+    try {
+      const options = {
+        method: "PATCH",
+        url: "/users/change-password",
+        data: values,
+      };
+      const { data } = await apiClient.request(options);
+      return data;
+    } catch (error) {
+      console.error("Change password failed:", error);
+      throw error;
+    }
+  },
+);
 
 const userSlice = createSlice({
   name: "user",
