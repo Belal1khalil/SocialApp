@@ -8,19 +8,51 @@ import {
 import { RiRocket2Line } from "react-icons/ri";
 import { FaGoogle, FaFacebookF } from "react-icons/fa";
 import { useFormik } from "formik";
-import { useDispatch } from "react-redux";
+import * as yup from "yup";
+
 import { login } from "@/store/features/user.slice";
 
+import { useRouter } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/hooks/store.hooks";
+import { toast } from "react-toastify";
+
+
 export default function LoginPage() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  // useAppSelector((store) => {
+  //   store.userReducer.token;
+  // });
+  const passwordRegex =
+    /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/;
+  const validationSchema = yup.object({
+    email: yup.string().email("Invalid email").required("Email is required"),
+    password: yup
+      .string()
+      .matches(
+        passwordRegex,
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+      )
+      .required("Password is required"),
+  });
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
-      rememberMe:false,
     },
+    validationSchema,
     onSubmit: (values) => {
-       dispatch(login(values))
+      dispatch(login(values)).then((res: any) => {
+      
+        if (res.payload?.message === "success") {
+          setTimeout(() => {
+            router.push("/");
+          }, 1500);
+        }
+      }).catch((err)=>{
+        throw err;
+      });
     },
   });
 
@@ -135,7 +167,7 @@ export default function LoginPage() {
                     Email
                   </label>
                   <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary-500 transition-colors">
+                    <div className="absolute top-4 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary-500 transition-colors">
                       <HiOutlineMail size={20} />
                     </div>
                     <input
@@ -148,6 +180,11 @@ export default function LoginPage() {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                     />
+                    {formik.touched.email && formik.errors.email && (
+                      <div className="text-xs text-red-500 mt-2 ml-1">
+                        * {formik.errors.email}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -167,7 +204,7 @@ export default function LoginPage() {
                     </Link>
                   </div>
                   <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary-500 transition-colors">
+                    <div className="absolute top-4 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary-500 transition-colors">
                       <HiOutlineLockClosed size={20} />
                     </div>
                     <input
@@ -175,11 +212,16 @@ export default function LoginPage() {
                       id="password"
                       placeholder="••••••••"
                       className="w-full pl-11 pr-4 py-3.5 bg-gray-50/50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all  placeholder:text-gray-400"
-                        name="password"
+                      name="password"
                       value={formik.values.password}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                   />
+                    />
+                    {formik.touched.password && formik.errors.password && (
+                      <div className="text-xs text-red-500 mt-2 ml-1">
+                        * {formik.errors.password}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -189,12 +231,8 @@ export default function LoginPage() {
                       type="checkbox"
                       id="remember"
                       className="w-5 h-5 text-primary-600 border-gray-300 rounded-lg focus:ring-primary-500 transition-colors cursor-pointer"
-                      value={formik.values.rememberMe}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
                       name="rememberMe"
-                      checked={formik.values.rememberMe}
-                   />
+                    />
                     <label
                       htmlFor="remember"
                       className="text-xs text-gray-500 font-medium cursor-pointer"

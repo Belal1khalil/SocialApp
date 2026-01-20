@@ -30,13 +30,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-          <Navbar/>
         <ReduxProvider>
-        
-        <main className="mt-24">
-            {children}
-        </main>
-          </ReduxProvider>
+          <Navbar />
+          <main className="mt-24">{children}</main>
+        </ReduxProvider>
       </body>
     </html>
   );
