@@ -1,13 +1,18 @@
 "use client";
 import { useAppDispatch, useAppSelector } from "@/hooks/store.hooks";
 import { getProfile } from "@/store/features/user.slice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import { 
   HiOutlineMail, 
   HiOutlineCake, 
   HiOutlineUser, 
   HiOutlineIdentification,
-  HiOutlineArrowLeft
+  HiOutlineArrowLeft,
+  HiOutlineLockClosed,
+  HiX,
+  HiOutlineShieldCheck
 } from "react-icons/hi";
 import { RiRocket2Line } from "react-icons/ri";
 import Link from "next/link";
@@ -15,7 +20,13 @@ import ProfileSkeleton from "@/skeleton/ProfileSkeleton";
 
 export default function ProfilePage() {
   const dispatch = useAppDispatch();
+  const [changePasswordMode, setChangePasswordMode] = useState(false);
   const { userData, isLoading } = useAppSelector((state) => state.userReducer);
+   
+ function toggleChangePasswordMode() {
+    setChangePasswordMode(!changePasswordMode);
+  }
+  console.log(changePasswordMode)
 
   useEffect(() => {
     dispatch(getProfile());
@@ -110,7 +121,9 @@ export default function ProfilePage() {
               </div>
 
               <div className="flex flex-col gap-3 w-full md:w-auto">
-                <button className="px-8 py-3.5 bg-linear-to-r from-primary-600 to-primary-700 text-white font-bold rounded-2xl shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40 transform hover:-translate-y-1 transition-all active:scale-95">
+                <button onClick={()=>{
+                  toggleChangePasswordMode();
+                }} className="px-8 py-3.5 bg-linear-to-r from-primary-600 to-primary-700 text-white font-bold rounded-2xl shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40 transform hover:-translate-y-1 transition-all active:scale-95">
                   change password
                 </button>
                 
@@ -142,6 +155,33 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      {changePasswordMode && (
+        <>
+        <div className="fixed inset-0 backdrop-blur-md z-50"></div>
+        <div className="min-w-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-xl z-50">
+            <div>
+              <h1 className="text-2xl font-bold mb-4">Change Password</h1>
+              <div className="absolute top-4 right-4 cursor-pointer" onClick={toggleChangePasswordMode}>
+                <HiX size={24} />
+              </div>
+            </div>
+              <form action="">
+                <div className="password flex flex-col gap-2">
+                   <label htmlFor="password" id="password-label">Password</label>
+                    <input type="password" name="password" id="password" className="form-control" placeholder="current password"/>
+
+                </div>
+                <div className="new-password flex flex-col gap-2 mt-4">
+                   <label htmlFor="new-password" id="new-password-label">New Password</label>
+                    <input type="password" name="new-password" id="new-password" className="form-control" placeholder="new password"/>
+               </div>
+                <button type="submit" className="mx-auto block mt-6 px-8 py-3.5 bg-linear-to-r from-primary-600 to-primary-700 text-white font-bold rounded-2xl shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40 transform hover:-translate-y-1 transition-all active:scale-95">
+                 change password
+                </button>
+              </form>
+        </div>
+        </>
+      ) }
     </div>
   );
 }
