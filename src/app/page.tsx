@@ -1,9 +1,12 @@
+import ProtectedRoute from "@/components/ProtectedRoute/ProtectedRoute";
 
 
 
 export default function page() {
   return (
-    <h1>home</h1>
+    <ProtectedRoute >
+      <div>Welcome to the protected page!</div>
+    </ProtectedRoute>
     
   )
 }

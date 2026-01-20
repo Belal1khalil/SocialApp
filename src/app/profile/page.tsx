@@ -2,6 +2,7 @@
 import { useAppDispatch, useAppSelector } from "@/hooks/store.hooks";
 import { getProfile, updatePassword } from "@/store/features/user.slice";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import {
@@ -23,8 +24,9 @@ export default function ProfilePage() {
   const passwordRegex =
     /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/;
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const [changePasswordMode, setChangePasswordMode] = useState(false);
-  const { userData, isLoading } = useAppSelector((state) => state.userReducer);
+  const { userData, isLoading, token } = useAppSelector((state) => state.userReducer);
 
   const validationSchema = yup.object({
     password: yup
@@ -67,8 +69,13 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
+    // Check if user is authenticated
+    if (!token) {
+      router.push("/login");
+      return;
+    }
     dispatch(getProfile());
-  }, [dispatch]);
+  }, [dispatch, token, router]);
 
   if (isLoading) {
     return <ProfileSkeleton />;
@@ -248,7 +255,7 @@ export default function ProfilePage() {
                     * {formik.errors.password}
                   </div>
                 )
-                 :""}
+                 : null}
               </div>
               <div className="new-password flex flex-col gap-2 mt-4">
                 <label htmlFor="new-password" id="new-password-label">
@@ -270,7 +277,7 @@ export default function ProfilePage() {
                   <div className="text-red-500 text-sm mt-1">
                     * {formik.errors.newPassword}
                   </div>
-                ) : ""
+                ) : null
                 }
                 
               </div>
