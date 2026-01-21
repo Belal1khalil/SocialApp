@@ -1,7 +1,11 @@
 "use client";
 import { useAppDispatch, useAppSelector } from "@/hooks/store.hooks";
-import { getProfile, updatePassword } from "@/store/features/user.slice";
-import { useEffect, useState } from "react";
+import {
+  getProfile,
+  updatePassword,
+  uploadProfilePicture,
+} from "@/store/features/user.slice";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as yup from "yup";
@@ -19,6 +23,7 @@ import { RiRocket2Line } from "react-icons/ri";
 import Link from "next/link";
 import ProfileSkeleton from "@/skeleton/ProfileSkeleton";
 import { toast } from "react-toastify";
+import { FaCamera } from "react-icons/fa";
 
 export default function ProfilePage() {
   const passwordRegex =
@@ -26,7 +31,10 @@ export default function ProfilePage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [changePasswordMode, setChangePasswordMode] = useState(false);
-  const { userData, isLoading, token } = useAppSelector((state) => state.userReducer);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { userData, isLoading, token } = useAppSelector(
+    (state) => state.userReducer,
+  );
 
   const validationSchema = yup.object({
     password: yup
@@ -48,6 +56,29 @@ export default function ProfilePage() {
   function toggleChangePasswordMode() {
     setChangePasswordMode(!changePasswordMode);
   }
+  async function handlePhotoChange(e: any) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file) {
+      const formData = new FormData();
+      formData.append("photo", file);
+      try {
+        const response = await dispatch(uploadProfilePicture(formData));
+        if ((response.payload as any)?.success === true) {
+          toast.success("Profile picture uploaded successfully");
+          dispatch(getProfile());
+        }
+        console.log("Profile picture uploaded:", response);
+      } catch (error) {
+        console.error("Profile picture upload failed:", error);
+        toast.error("Failed to upload profile picture");
+      }
+    }
+  }
+  function triggerUploadPhoto() {
+    fileInputRef.current?.click();
+  }
+
   const formik = useFormik({
     initialValues: {
       password: "",
@@ -55,16 +86,17 @@ export default function ProfilePage() {
     },
     validationSchema,
     onSubmit: (values) => {
-      dispatch(updatePassword(values)).then((res: any) => {
-        if(res.payload.message === "success") {
-          toast.success("Password updated successfully");
-          formik.resetForm();
+      dispatch(updatePassword(values))
+        .then((res: any) => {
+          if (res.payload.message === "success") {
+            toast.success("Password updated successfully");
+            formik.resetForm();
             toggleChangePasswordMode();
-        }
-      
-      }).catch((err:any)=>{
-         console.error("Password update failed:", err);
-      });
+          }
+        })
+        .catch((err: any) => {
+          console.error("Password update failed:", err);
+        });
     },
   });
 
@@ -142,6 +174,14 @@ export default function ProfilePage() {
                       <HiOutlineUser size={80} strokeWidth={1} />
                     </div>
                   )}
+                  <div className="absolute bottom-3 right-3">
+                    <button
+                      onClick={triggerUploadPhoto}
+                      className="bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg hover:bg-white transition-colors"
+                    >
+                      <FaCamera className="text-primary-600" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -224,30 +264,34 @@ export default function ProfilePage() {
       {changePasswordMode && (
         <>
           {/* Backdrop Overlay */}
-          <div 
+          <div
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 animate-fadeIn"
             onClick={toggleChangePasswordMode}
           ></div>
-          
+
           {/* Modal Container */}
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-lg z-50 animate-scaleIn">
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-lg z-50">
             <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/60 overflow-hidden">
               {/* Header with Gradient */}
               <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 p-8 overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-20 translate-x-20"></div>
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-500/20 rounded-full blur-2xl translate-y-10 -translate-x-10"></div>
-                
+
                 <div className="relative flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 bg-white/20 backdrop-blur-lg rounded-2xl flex items-center justify-center">
                       <HiOutlineShieldCheck className="text-white" size={28} />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-white">Change Password</h2>
-                      <p className="text-primary-100 text-sm mt-1">Update your security credentials</p>
+                      <h2 className="text-2xl font-bold text-white">
+                        Change Password
+                      </h2>
+                      <p className="text-primary-100 text-sm mt-1">
+                        Update your security credentials
+                      </p>
                     </div>
                   </div>
-                  
+
                   <button
                     onClick={toggleChangePasswordMode}
                     className="w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-lg rounded-xl flex items-center justify-center transition-all active:scale-95"
@@ -262,8 +306,8 @@ export default function ProfilePage() {
                 <form onSubmit={formik.handleSubmit} className="space-y-6">
                   {/* Current Password Field */}
                   <div className="space-y-2">
-                    <label 
-                      htmlFor="password" 
+                    <label
+                      htmlFor="password"
                       className="block text-sm font-bold text-gray-700 uppercase tracking-wide"
                     >
                       Current Password
@@ -296,8 +340,8 @@ export default function ProfilePage() {
 
                   {/* New Password Field */}
                   <div className="space-y-2">
-                    <label 
-                      htmlFor="new-password" 
+                    <label
+                      htmlFor="new-password"
                       className="block text-sm font-bold text-gray-700 uppercase tracking-wide"
                     >
                       New Password
@@ -320,12 +364,13 @@ export default function ProfilePage() {
                         />
                       </div>
                     </div>
-                    {formik.touched.newPassword && formik.errors.newPassword && (
-                      <div className="flex items-start gap-2 text-red-600 text-sm animate-slideDown">
-                        <span className="mt-0.5">⚠️</span>
-                        <span>{formik.errors.newPassword}</span>
-                      </div>
-                    )}
+                    {formik.touched.newPassword &&
+                      formik.errors.newPassword && (
+                        <div className="flex items-start gap-2 text-red-600 text-sm animate-slideDown">
+                          <span className="mt-0.5">⚠️</span>
+                          <span>{formik.errors.newPassword}</span>
+                        </div>
+                      )}
                   </div>
 
                   {/* Action Buttons */}
@@ -350,6 +395,13 @@ export default function ProfilePage() {
           </div>
         </>
       )}
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept="image/*"
+        onChange={handlePhotoChange}
+      />
     </div>
   );
 }

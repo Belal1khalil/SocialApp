@@ -70,6 +70,24 @@ export const updatePassword = createAsyncThunk(
     }
   },
 );
+export const uploadProfilePicture = createAsyncThunk(
+  "/user.uploadProfilePicture",
+  async (formData: FormData) => {
+    try {
+      const options = {
+        method: "PUT",
+        url: "/users/upload-photo",
+        data: formData,
+      };
+      const response = await apiClient.request(options);
+      console.log(response);
+      return response;
+    } catch (error) {
+      console.error("Upload profile picture failed:", error);
+      throw error;
+    }
+  },
+);
 
 const userSlice = createSlice({
   name: "user",
