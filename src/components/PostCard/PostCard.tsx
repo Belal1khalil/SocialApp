@@ -1,4 +1,5 @@
 import { Post } from "@/types/posts.types";
+import { useState } from "react";
 
 import {
   HiOutlineHeart,
@@ -6,13 +7,16 @@ import {
   HiOutlineShare,
   HiDotsHorizontal,
 } from "react-icons/hi";
+import CommentCard from "../CommentCard/CommentCard";
+import { BsEye } from "react-icons/bs";
+import Link from "next/link";
 
 interface PostCardProps {
   post: Post;
-
 }
 
 export default function PostCard({ post }: PostCardProps) {
+  const [showAllComments, setShowAllComments] = useState(false);
   // Helper to format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -48,9 +52,12 @@ export default function PostCard({ post }: PostCardProps) {
             </p>
           </div>
         </div>
-        <button className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-50 transition-colors">
-          <HiDotsHorizontal size={20} />
-        </button>
+        <Link
+          href={`/post/${post._id}`}
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+        >
+          <BsEye size={20} />
+        </Link>
       </div>
 
       {/* Content */}
@@ -59,7 +66,7 @@ export default function PostCard({ post }: PostCardProps) {
           {post.body}
         </p>
       </div>
-        
+
       {/* Post Image */}
       {post.image && (
         <div className="w-full relative bg-gray-50">
@@ -110,6 +117,30 @@ export default function PostCard({ post }: PostCardProps) {
           </button>
         </div>
       </div>
+
+      {/* Comments Section */}
+      {post.comments.length > 0 && (
+        <div className="px-5 pb-5 space-y-3">
+          {post.comments.length > 1 && (
+            <button
+              onClick={() => setShowAllComments(!showAllComments)}
+              className="text-sm font-semibold text-gray-500 hover:text-primary-600 transition-colors hover:underline pl-2"
+            >
+              {showAllComments
+                ? "Hide comments"
+                : `View all ${post.comments.length} comments`}
+            </button>
+          )}
+
+          <div className="space-y-3">
+            {post.comments
+              .slice(0, showAllComments ? post.comments.length : 1)
+              .map((comment) => (
+                <CommentCard key={comment._id} commentInfo={comment} />
+              ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
