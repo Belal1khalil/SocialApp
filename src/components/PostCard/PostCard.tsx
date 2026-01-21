@@ -1,5 +1,5 @@
 import { Post } from "@/types/posts.types";
-import React from "react";
+
 import {
   HiOutlineHeart,
   HiOutlineChat,
@@ -9,6 +9,7 @@ import {
 
 interface PostCardProps {
   post: Post;
+
 }
 
 export default function PostCard({ post }: PostCardProps) {
@@ -58,7 +59,7 @@ export default function PostCard({ post }: PostCardProps) {
           {post.body}
         </p>
       </div>
-
+        
       {/* Post Image */}
       {post.image && (
         <div className="w-full relative bg-gray-50">

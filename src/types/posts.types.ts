@@ -41,7 +41,7 @@ export interface ApiResponse {
 
 export type postsState = {
     posts: null | Post[];
-   
+    postDetails: null | Post;
 
 }
 
