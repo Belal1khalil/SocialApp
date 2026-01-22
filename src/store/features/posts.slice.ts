@@ -2,6 +2,7 @@ import { apiClient } from "@/services/api-client";
 import { postsState } from "@/types/posts.types";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const initialState: postsState = {
   posts: null,
@@ -37,6 +38,23 @@ export const fetchPostDetails = createAsyncThunk(
     }
   },
 );
+export const updatePost = createAsyncThunk(
+  "posts/updatePost",
+  async ({ postId, PostData }: { postId: string; PostData: any }) => {
+    try {
+      const options = {
+        method: "PUT",
+        url: `/posts/${postId}`,
+        data: PostData,
+      };
+      const response = await apiClient.request(options);
+      return response.data;
+    } catch (error) {
+      console.error("Update post failed:", error);
+      throw error;
+    }
+  }
+);
 
 const postsSlice = createSlice({
   name: "posts",
@@ -56,6 +74,42 @@ const postsSlice = createSlice({
     builder.addCase(fetchPostDetails.rejected, (state, action) => {
       console.log("rejected post details:");
       console.log({ state, action });
+    });
+    builder.addCase(updatePost.fulfilled, (state, action) => {
+      console.log("post updated successfully", action.payload);
+      const updatedPost = action.payload.post;
+      
+      if (state.posts) {
+        state.posts = state.posts.map((post) => {
+          if (post._id === updatedPost._id) {
+            // Keep existing user and comments if the update doesn't include them properly
+            return {
+              ...post,
+              ...updatedPost,
+              user: (typeof updatedPost.user === 'object' && updatedPost.user !== null) 
+                ? updatedPost.user 
+                : post.user,
+              comments: updatedPost.comments || post.comments || []
+            };
+          }
+          return post;
+        });
+      }
+      if (state.postDetails && state.postDetails._id === updatedPost._id) {
+        state.postDetails = {
+          ...state.postDetails,
+          ...updatedPost,
+          user: (typeof updatedPost.user === 'object' && updatedPost.user !== null) 
+            ? updatedPost.user 
+            : state.postDetails.user,
+          comments: updatedPost.comments || state.postDetails.comments || []
+        };
+      }
+      toast.success("Post updated successfully");
+    });
+    builder.addCase(updatePost.rejected, (state, action) => {
+      console.log("post update failed");
+      toast.error("Failed to update post");
     });
   },
 });

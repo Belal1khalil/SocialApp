@@ -2,6 +2,7 @@ import { userState } from "@/types/user.types";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { apiClient } from "./../../services/api-client";
 import { toast } from "react-toastify";
+import { updatePost } from "./posts.slice";
 
 const initialState: userState = {
   token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
@@ -105,6 +106,7 @@ try {
 }
 })
 
+
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -159,6 +161,25 @@ const userSlice = createSlice({
 
        builder.addCase(getUserPosts.rejected, (state, action) => {
       console.log("User posts rejected");
+     });
+
+     builder.addCase(updatePost.fulfilled, (state, action) => {
+       const updatedPost = action.payload.post;
+       if (state.userPosts) {
+         state.userPosts = state.userPosts.map((post) => {
+           if (post._id === updatedPost._id) {
+             return {
+               ...post,
+               ...updatedPost,
+               user: (typeof updatedPost.user === 'object' && updatedPost.user !== null) 
+                 ? updatedPost.user 
+                 : post.user,
+               comments: updatedPost.comments || post.comments || []
+             };
+           }
+           return post;
+         });
+       }
      });
   },
 });
