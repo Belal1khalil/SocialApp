@@ -89,6 +89,21 @@ export const uploadProfilePicture = createAsyncThunk(
   },
 );
 
+export const getUserPosts = createAsyncThunk(".user/getUserPosts", async (id: string) => {
+try {
+    const options = {
+      method: "GET",
+       url:`/users/${id}/posts`
+
+    }
+    const response = await apiClient.request(options);
+    console.log(response);
+    return response;
+} catch (error) {
+   throw error;
+}
+})
+
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -136,6 +151,15 @@ const userSlice = createSlice({
       state.isLoading = false;
       toast.error("Failed to load profile data.");
     });
+     builder.addCase(getUserPosts.fulfilled, (state, action) => {
+      console.log("User posts fetched");
+      console.log({state, action});
+     });
+     
+       builder.addCase(getUserPosts.fulfilled, (state, action) => {
+      console.log("User posts fetched");
+      console.log({state, action});
+     });
   },
 });
 

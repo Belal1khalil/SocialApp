@@ -5,6 +5,7 @@ import ProtectedRoute from "@/components/ProtectedRoute/ProtectedRoute";
 import { useAppDispatch, useAppSelector } from "@/hooks/store.hooks";
 import { fetchPosts } from "@/store/features/posts.slice";
 import { useEffect, useState } from "react";
+import PostForm from "@/components/PostForm/PostForm";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -30,6 +31,7 @@ export default function Home() {
 
   return (
     <ProtectedRoute>
+      <PostForm/>
       <div className="container mx-auto px-4 py-8 max-w-2xl bg-gray-50/50 min-h-screen">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">News Feed</h1>
         
