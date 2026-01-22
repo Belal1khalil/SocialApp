@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
 import { HiMenuAlt3, HiX, HiUserCircle, HiChevronDown } from "react-icons/hi";
 import { RiRocket2Line } from "react-icons/ri";
+import userplaceholder from "../../assests/imgs/user (1).png"
 
 import { logout } from "@/store/features/user.slice";
 
@@ -14,7 +15,7 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const { token } = useAppSelector((store) => store.userReducer);
+  const { token , userData } = useAppSelector((store) => store.userReducer);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -77,7 +78,12 @@ export default function Navbar() {
                     className="flex items-center gap-2 p-1.5 pr-3 bg-gray-50 hover:bg-gray-100 rounded-full border border-gray-100 transition-all group"
                   >
                     <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
-                      <HiUserCircle size={24} />
+                      {/* <HiUserCircle size={24} /> */}
+                      <img 
+                      src= {userData?.photo || userplaceholder.src}
+                      className="w-6 h-6 rounded-full "
+                       alt=""
+                        />
                     </div>
                     <HiChevronDown
                       className={`text-gray-400 group-hover:text-primary-600 transition-transform duration-300 ${userMenuOpen ? "rotate-180" : ""}`}

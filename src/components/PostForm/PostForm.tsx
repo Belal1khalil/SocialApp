@@ -3,10 +3,12 @@ import { FaImage, FaPaperPlane } from "react-icons/fa";
 import user from "../../assests/imgs/user (1).png";
 import { apiClient } from "@/services/api-client";
 import { toast } from "react-toastify";
+import { useAppSelector } from "@/hooks/store.hooks";
 
 export default function PostForm() {
   const postContentRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+   const {userData} = useAppSelector((store) => store.userReducer)
 
   async function createPost() {
     const content = postContentRef.current?.value || "";
@@ -41,7 +43,7 @@ export default function PostForm() {
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
           <img
-            src={user.src}
+            src={userData?.photo || user.src}
             alt="user avatar"
             className="w-10 h-10 rounded-full"
           />

@@ -15,6 +15,9 @@ import {
 import CommentCard from "../CommentCard/CommentCard";
 import { BsEye } from "react-icons/bs";
 import Link from "next/link";
+import { apiClient } from "@/services/api-client";
+import { FaDeleteLeft } from "react-icons/fa6";
+import { DeleteUserPost } from "@/store/features/user.slice";
 
 interface PostCardProps {
   post: Post;
@@ -27,14 +30,22 @@ export default function PostCard({ post }: PostCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(post.body);
   const [editImage, setEditImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(post.image || null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    post.image || null,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isOwner = userData?._id === (typeof post.user === 'string' ? post.user : post.user?._id);
-  
+  const isOwner =
+    userData?._id ===
+    (typeof post.user === "string" ? post.user : post.user?._id);
+
   // Use userData as fallback for photo/name if it's the current user's post
-  const userPhoto = (typeof post.user === 'object' ? post.user?.photo : null) || (isOwner ? userData?.photo : '');
-  const userName = (typeof post.user === 'object' ? post.user?.name : null) || (isOwner ? userData?.name : 'User');
+  const userPhoto =
+    (typeof post.user === "object" ? post.user?.photo : null) ||
+    (isOwner ? userData?.photo : "");
+  const userName =
+    (typeof post.user === "object" ? post.user?.name : null) ||
+    (isOwner ? userData?.name : "User");
 
   // Helper to format date
   const formatDate = (dateString: string) => {
@@ -65,11 +76,10 @@ export default function PostCard({ post }: PostCardProps) {
     if (editImage) {
       PostData.append("image", editImage);
     }
-    
+
     await dispatch(updatePost({ postId: post._id, PostData }));
     setIsEditing(false);
   };
-  
 
   return (
     <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
@@ -117,6 +127,17 @@ export default function PostCard({ post }: PostCardProps) {
           >
             <BsEye size={20} />
           </Link>
+          {isOwner && (
+            <button
+              onClick={async () => {
+                await dispatch(DeleteUserPost(post._id));
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+              title="Delete Post"
+            >
+              <FaDeleteLeft size={20} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -130,7 +151,7 @@ export default function PostCard({ post }: PostCardProps) {
               className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all resize-none"
               rows={3}
             />
-            
+
             <div className="relative group">
               <input
                 type="file"
@@ -139,7 +160,7 @@ export default function PostCard({ post }: PostCardProps) {
                 className="hidden"
                 accept="image/*"
               />
-              
+
               {imagePreview ? (
                 <div className="relative rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
                   <img

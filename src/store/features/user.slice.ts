@@ -91,21 +91,40 @@ export const uploadProfilePicture = createAsyncThunk(
   },
 );
 
-export const getUserPosts = createAsyncThunk(".user/getUserPosts", async (id: string) => {
-try {
-    const options = {
-      method: "GET",
-       url:`/users/${id}/posts`
-
+export const getUserPosts = createAsyncThunk(
+  ".user/getUserPosts",
+  async (id: string) => {
+    try {
+      const options = {
+        method: "GET",
+        url: `/users/${id}/posts`,
+      };
+      const { data } = await apiClient.request(options);
+      console.log(data);
+      return data;
+    } catch (error) {
+      throw error;
     }
-    const { data } = await apiClient.request(options);
-    console.log(data);
-    return data;
-} catch (error) {
-   throw error;
-}
-})
+  },
+);
 
+export const DeleteUserPost = createAsyncThunk(
+  "user/DeleteUserPost",
+  async (postId: string) => {
+    try {
+      const options = {
+        method: "DELETE",
+        url: `/posts/${postId}`,
+      };
+      const response = await apiClient.request(options);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.error("Delete post failed:", error);
+      throw error;
+    }
+  },
+);
 
 const userSlice = createSlice({
   name: "user",
@@ -154,33 +173,46 @@ const userSlice = createSlice({
       state.isLoading = false;
       toast.error("Failed to load profile data.");
     });
-     builder.addCase(getUserPosts.fulfilled, (state, action) => {
-      console.log("User posts fetched");
+    builder.addCase(getUserPosts.fulfilled, (state, action) => {
       state.userPosts = action.payload.posts;
-     });
+    });
 
-       builder.addCase(getUserPosts.rejected, (state, action) => {
-      console.log("User posts rejected");
-     });
+    builder.addCase(getUserPosts.rejected, (state, action) => {
+      toast.error("failed to load posts");
+    });
 
-     builder.addCase(updatePost.fulfilled, (state, action) => {
-       const updatedPost = action.payload.post;
-       if (state.userPosts) {
-         state.userPosts = state.userPosts.map((post) => {
-           if (post._id === updatedPost._id) {
-             return {
-               ...post,
-               ...updatedPost,
-               user: (typeof updatedPost.user === 'object' && updatedPost.user !== null) 
-                 ? updatedPost.user 
-                 : post.user,
-               comments: updatedPost.comments || post.comments || []
-             };
-           }
-           return post;
-         });
-       }
-     });
+    builder.addCase(updatePost.fulfilled, (state, action) => {
+      const updatedPost = action.payload.post;
+      if (state.userPosts) {
+        state.userPosts = state.userPosts.map((post) => {
+          if (post._id === updatedPost._id) {
+            return {
+              ...post,
+              ...updatedPost,
+              user:
+                typeof updatedPost.user === "object" &&
+                updatedPost.user !== null
+                  ? updatedPost.user
+                  : post.user,
+              comments: updatedPost.comments || post.comments || [],
+            };
+          }
+          return post;
+        });
+      }
+    });
+    builder.addCase(DeleteUserPost.fulfilled, (state, action) => {
+      toast.success("Post deleted successfully");
+      if (state.userPosts) {
+        state.userPosts = state.userPosts.filter(
+          (post) => post._id !== action.meta.arg,
+        );
+      }
+      console.log("Post deleted from user state", action.meta.arg);
+    });
+    builder.addCase(DeleteUserPost.rejected, (state, action) => {
+      toast.error("Failed to delete post");
+    });
   },
 });
 

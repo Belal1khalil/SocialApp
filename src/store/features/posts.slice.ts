@@ -3,6 +3,7 @@ import { postsState } from "@/types/posts.types";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { DeleteUserPost } from "./user.slice";
 
 const initialState: postsState = {
   posts: null,
@@ -110,6 +111,14 @@ const postsSlice = createSlice({
     builder.addCase(updatePost.rejected, (state, action) => {
       console.log("post update failed");
       toast.error("Failed to update post");
+    });
+    builder.addCase(DeleteUserPost.fulfilled, (state, action) => {
+      if (state.posts) {
+        state.posts = state.posts.filter((post) => post._id !== action.meta.arg);
+      }
+      if (state.postDetails && state.postDetails._id === action.meta.arg) {
+        state.postDetails = null;
+      }
     });
   },
 });
