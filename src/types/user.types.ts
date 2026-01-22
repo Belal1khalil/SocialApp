@@ -1,3 +1,5 @@
+import { Post } from "./posts.types";
+
 export interface User {
   _id: string;
   name: string;
@@ -11,4 +13,5 @@ export type userState = {
   token: null | string;
   userData: User | null;
   isLoading: boolean;
+  userPosts: Post[] | null;
 };

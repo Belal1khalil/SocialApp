@@ -7,6 +7,7 @@ const initialState: userState = {
   token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
   userData: null,
   isLoading: false,
+  userPosts: null,
 };
 
 export const login = createAsyncThunk(
@@ -96,9 +97,9 @@ try {
        url:`/users/${id}/posts`
 
     }
-    const response = await apiClient.request(options);
-    console.log(response);
-    return response;
+    const { data } = await apiClient.request(options);
+    console.log(data);
+    return data;
 } catch (error) {
    throw error;
 }
@@ -153,12 +154,11 @@ const userSlice = createSlice({
     });
      builder.addCase(getUserPosts.fulfilled, (state, action) => {
       console.log("User posts fetched");
-      console.log({state, action});
+      state.userPosts = action.payload.posts;
      });
-     
-       builder.addCase(getUserPosts.fulfilled, (state, action) => {
-      console.log("User posts fetched");
-      console.log({state, action});
+
+       builder.addCase(getUserPosts.rejected, (state, action) => {
+      console.log("User posts rejected");
      });
   },
 });

@@ -2,10 +2,12 @@
 import { useAppDispatch, useAppSelector } from "@/hooks/store.hooks";
 import {
   getProfile,
+  getUserPosts,
   updatePassword,
   uploadProfilePicture,
 } from "@/store/features/user.slice";
 import { useEffect, useRef, useState } from "react";
+import PostCard from "@/components/PostCard/PostCard";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as yup from "yup";
@@ -32,7 +34,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const [changePasswordMode, setChangePasswordMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { userData, isLoading, token } = useAppSelector(
+  const { userData, isLoading, token, userPosts } = useAppSelector(
     (state) => state.userReducer,
   );
 
@@ -108,6 +110,12 @@ export default function ProfilePage() {
     }
     dispatch(getProfile());
   }, [dispatch, token, router]);
+
+  useEffect(() => {
+    if (userData?._id) {
+      dispatch(getUserPosts(userData._id));
+    }
+  }, [dispatch, userData?._id]);
 
   if (isLoading) {
     return <ProfileSkeleton />;
@@ -259,6 +267,22 @@ export default function ProfilePage() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* User Posts Section */}
+        <div className="mt-8 space-y-6">
+          <h2 className="text-2xl font-bold text-gray-800 px-4">My Posts</h2>
+          {userPosts && userPosts.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 max-w-2xl mx-auto">
+              {userPosts.map((post, index) => (
+                <PostCard key={post._id || index} post={post} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 bg-white/50 rounded-2xl">
+              <p className="text-gray-500">No posts yet.</p>
+            </div>
+          )}
         </div>
       </div>
       {changePasswordMode && (
