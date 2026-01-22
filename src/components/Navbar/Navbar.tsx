@@ -4,7 +4,7 @@ import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
 import { HiMenuAlt3, HiX, HiUserCircle, HiChevronDown } from "react-icons/hi";
 import { RiRocket2Line } from "react-icons/ri";
-import userplaceholder from "../../assests/imgs/user (1).png"
+import userplaceholder from "../../assests/imgs/user (1).png";
 
 import { logout } from "@/store/features/user.slice";
 
@@ -15,7 +15,7 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const { token , userData } = useAppSelector((store) => store.userReducer);
+  const { token, userData } = useAppSelector((store) => store.userReducer);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -79,11 +79,11 @@ export default function Navbar() {
                   >
                     <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
                       {/* <HiUserCircle size={24} /> */}
-                      <img 
-                      src= {userData?.photo || userplaceholder.src}
-                      className="w-6 h-6 rounded-full "
-                       alt=""
-                        />
+                      <img
+                        src={userData?.photo || userplaceholder.src}
+                        className="w-6 h-6 rounded-full "
+                        alt=""
+                      />
                     </div>
                     <HiChevronDown
                       className={`text-gray-400 group-hover:text-primary-600 transition-transform duration-300 ${userMenuOpen ? "rotate-180" : ""}`}
@@ -99,12 +99,7 @@ export default function Navbar() {
                       >
                         Profile
                       </Link>
-                      <Link
-                        href="/settings"
-                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
-                      >
-                        Settings
-                      </Link>
+
                       <hr className="my-1 border-gray-100" />
                       <Link href={"/login"}>
                         <button
@@ -161,16 +156,14 @@ export default function Navbar() {
                   className="flex items-center gap-3 text-lg font-medium text-gray-700 hover:text-primary-600 py-2"
                   onClick={() => setIsOpen(false)}
                 >
-                  <HiUserCircle size={24} className="text-primary-500" /> My
-                  Profile
+                  <img
+                    src={userData?.photo || userplaceholder.src}
+                    alt=""
+                    className="w-6 h-6 rounded-full"
+                  />
+                  My Profile
                 </Link>
-                <Link
-                  href="/settings"
-                  className="text-lg font-medium text-gray-700 hover:text-primary-600 py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Settings
-                </Link>
+
                 <button
                   onClick={() => {
                     handleLogout();
