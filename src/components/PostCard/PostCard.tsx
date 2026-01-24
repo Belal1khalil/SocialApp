@@ -304,7 +304,7 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
       )}
 
-      <CommentForm postId={post._id} />
+      <CommentForm postId={post?._id} />
     </div>
   );
 }

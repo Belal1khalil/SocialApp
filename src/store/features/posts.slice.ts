@@ -77,6 +77,25 @@ export const addComment = createAsyncThunk(
     }
   },
 );
+export const updateComment = createAsyncThunk(
+  "posts/updateComment",
+  async ({ content, commentId }: { content: string; commentId: string }) => {
+    try {
+      const options = {
+        method: "PUT",
+        url: `/comments/${commentId}`,
+        data: {
+          content,
+        },
+      };
+      const response = await apiClient.request(options);
+      return response.data.comment;
+    } catch (error) {
+      console.error("Update comment failed:", error);
+      throw error;
+    }
+  },
+);
 
 const postsSlice = createSlice({
   name: "posts",
@@ -169,6 +188,32 @@ const postsSlice = createSlice({
       if (state.postDetails && state.postDetails._id === action.meta.arg) {
         state.postDetails = null;
       }
+    });
+    builder.addCase(updateComment.fulfilled, (state, action) => {
+      const updatedComment = action.payload;
+
+      // Update in posts list
+      if (state.posts) {
+        state.posts = state.posts.map((post) => ({
+          ...post,
+          comments:
+            post.comments?.map((comment) =>
+              comment._id === updatedComment._id ? updatedComment : comment,
+            ) || [],
+        }));
+      }
+
+      // Update in postDetails
+      if (state.postDetails && state.postDetails.comments) {
+        state.postDetails.comments = state.postDetails.comments.map((comment) =>
+          comment._id === updatedComment._id ? updatedComment : comment,
+        );
+      }
+
+      toast.success("Comment updated successfully");
+    });
+    builder.addCase(updateComment.rejected, (state, action) => {
+      toast.error("Failed to update comment");
     });
   },
 });
