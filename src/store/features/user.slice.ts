@@ -2,7 +2,7 @@ import { userState } from "@/types/user.types";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { apiClient } from "./../../services/api-client";
 import { toast } from "react-toastify";
-import { updatePost } from "./posts.slice";
+import { addComment, deleteComment, updateComment, updatePost } from "./posts.slice";
 
 const initialState: userState = {
   token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
@@ -48,7 +48,6 @@ export const getProfile = createAsyncThunk("user/getProfile", async () => {
       url: "/users/profile-data",
     };
     const { data } = await apiClient.request(options);
-    console.log(data);
     return data;
   } catch (error) {
     console.error("Get profile failed:", error);
@@ -100,7 +99,6 @@ export const getUserPosts = createAsyncThunk(
         url: `/users/${id}/posts`,
       };
       const { data } = await apiClient.request(options);
-      console.log(data);
       return data;
     } catch (error) {
       throw error;
@@ -212,6 +210,43 @@ const userSlice = createSlice({
     });
     builder.addCase(DeleteUserPost.rejected, (state, action) => {
       toast.error("Failed to delete post");
+    });
+    builder.addCase(addComment.fulfilled, (state, action) => {
+      const { comment, postId } = action.payload;
+      if (state.userPosts) {
+        state.userPosts = state.userPosts.map((post) => {
+          if (post._id === postId) {
+            return {
+              ...post,
+              comments: [...(post.comments || []), comment],
+            };
+          }
+          return post;
+        });
+      }
+    });
+    builder.addCase(updateComment.fulfilled, (state, action) => {
+      const updatedComment = action.payload;
+      if (state.userPosts) {
+        state.userPosts = state.userPosts.map((post) => ({
+          ...post,
+          comments:
+            post.comments?.map((comment) =>
+              comment._id === updatedComment._id ? updatedComment : comment,
+            ) || [],
+        }));
+      }
+    });
+    builder.addCase(deleteComment.fulfilled, (state, action) => {
+      const deletedCommentId = action.payload;
+      if (state.userPosts) {
+        state.userPosts = state.userPosts.map((post) => ({
+          ...post,
+          comments:
+            post.comments?.filter((comment) => comment._id !== deletedCommentId) ||
+            [],
+        }));
+      }
     });
   },
 });

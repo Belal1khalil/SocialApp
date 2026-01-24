@@ -96,6 +96,22 @@ export const updateComment = createAsyncThunk(
     }
   },
 );
+export const deleteComment = createAsyncThunk(
+  "posts/deleteComment",
+  async (id: string) => {
+    try {
+      const options = {
+        method: "DELETE",
+        url: `/comments/${id}`,
+      };
+      await apiClient.request(options);
+      return id;
+    } catch (error) {
+      console.error("Delete comment failed:", error);
+      throw error;
+    }
+  },
+);
 
 const postsSlice = createSlice({
   name: "posts",
@@ -159,7 +175,7 @@ const postsSlice = createSlice({
       const { comment, postId } = action.payload;
       if (state.posts) {
         state.posts = state.posts.map((post) => {
-          if (post._id === postId) {
+          if (post?._id === postId) {
             return {
               ...post,
               comments: [...(post.comments || []), comment],
@@ -168,7 +184,7 @@ const postsSlice = createSlice({
           return post;
         });
       }
-      if (state.postDetails && state.postDetails._id === postId) {
+      if (state.postDetails && state.postDetails?._id === postId) {
         state.postDetails = {
           ...state.postDetails,
           comments: [...(state.postDetails.comments || []), comment],
@@ -213,8 +229,34 @@ const postsSlice = createSlice({
       toast.success("Comment updated successfully");
     });
     builder.addCase(updateComment.rejected, (state, action) => {
-      toast.error("Failed to update comment");
+      toast.error("Failed to update another comment");
     });
+    builder.addCase(deleteComment.fulfilled, (state, action) => {
+      const deletedCommentId = action.payload;
+
+      // Remove from posts list
+      if (state.posts) {
+        state.posts = state.posts.map((post) => ({
+          ...post,
+          comments:
+            post.comments?.filter((comment) => comment._id !== deletedCommentId) ||
+            [],
+        }));
+      }
+
+      // Remove from postDetails
+      if (state.postDetails && state.postDetails.comments) {
+        state.postDetails.comments = state.postDetails.comments.filter(
+          (comment) => comment._id !== deletedCommentId,
+        );
+      }
+
+      toast.success("Comment deleted successfully");
+    });
+    builder.addCase(deleteComment.rejected, (state, action) => {
+      toast.error("Failed to delete comment");
+    });
+
   },
 });
 

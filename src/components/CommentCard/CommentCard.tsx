@@ -2,15 +2,18 @@
 import { Comment } from "@/types/posts.types";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/store.hooks";
-import { updateComment } from "@/store/features/posts.slice";
+import { deleteComment, updateComment } from "@/store/features/posts.slice";
 import { HiDotsHorizontal, HiOutlineX } from "react-icons/hi";
 import userPlaceholder from "../../assests/imgs/user (1).png";
 
 export default function CommentCard({ commentInfo }: { commentInfo: Comment }) {
   const dispatch = useAppDispatch();
+  const { userData } = useAppSelector((state) => state.userReducer);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(commentInfo.content);
   const [isLoading, setIsLoading] = useState(false);
+
+  const isOwner = userData?._id === commentInfo?.commentCreator?._id;
 
   function handleEditToggle() {
     if (!isLoading) {
@@ -26,15 +29,31 @@ export default function CommentCard({ commentInfo }: { commentInfo: Comment }) {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!editContent.trim() || editContent === commentInfo.content || isLoading) {
+      setIsEditing(false);
+      return;
+    }
 
     setIsLoading(true);
     try {
       await dispatch(
         updateComment({ content: editContent, commentId: commentInfo._id }),
-      );
+      ).unwrap();
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to update comment:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      await dispatch(deleteComment(commentInfo._id)).unwrap();
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
     } finally {
       setIsLoading(false);
     }
@@ -72,13 +91,24 @@ export default function CommentCard({ commentInfo }: { commentInfo: Comment }) {
 
         {/* Actions */}
         <div className="flex items-center gap-4 px-2 text-xs font-semibold text-gray-500">
+         
           {
-            <button
-              onClick={handleEditToggle}
-              className="hover:text-primary-600 transition-colors"
-            >
-              Edit
-            </button>
+            <>
+              <button
+                onClick={handleEditToggle}
+                className="hover:text-primary-600 transition-colors"
+                disabled={isLoading}
+              >
+                Edit
+              </button>
+              <button
+                onClick={handleDelete}
+                className="hover:text-red-600 transition-colors"
+                disabled={isLoading}
+              >
+                {isLoading ? "Deleting..." : "Delete"}
+              </button>
+            </>
           }
         </div>
       </div>
@@ -93,9 +123,7 @@ export default function CommentCard({ commentInfo }: { commentInfo: Comment }) {
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md z-[70] bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Edit Comment
-                </h2>
+                <h2 className="text-xl font-bold text-gray-900">Edit Comment</h2>
                 <button
                   onClick={handleEditToggle}
                   className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
@@ -106,9 +134,10 @@ export default function CommentCard({ commentInfo }: { commentInfo: Comment }) {
 
               <form onSubmit={handleUpdate} className="space-y-4">
                 <input
+                  type="text"
                   value={editContent}
                   onChange={(e) => setEditContent(e.target.value)}
-                  className="w-full p-4 text-sm bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 focus:bg-white transition-all resize-none "
+                  className="w-full p-4 text-sm bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 focus:bg-white transition-all outline-none"
                   placeholder="Your updated comment..."
                   disabled={isLoading}
                   autoFocus
@@ -151,3 +180,4 @@ export default function CommentCard({ commentInfo }: { commentInfo: Comment }) {
     </div>
   );
 }
+

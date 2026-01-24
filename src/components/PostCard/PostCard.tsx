@@ -298,7 +298,7 @@ export default function PostCard({ post }: PostCardProps) {
             {post.comments
               .slice(0, showAllComments ? post.comments.length : 1)
               .map((comment) => (
-                <CommentCard key={comment._id} commentInfo={comment} />
+                <CommentCard key={comment?._id} commentInfo={comment} />
               ))}
           </div>
         </div>
