@@ -54,7 +54,28 @@ export const updatePost = createAsyncThunk(
       console.error("Update post failed:", error);
       throw error;
     }
-  }
+  },
+);
+
+export const addComment = createAsyncThunk(
+  "posts/addComment",
+  async ({ content, postId }: { content: string; postId: string }) => {
+    try {
+      const options = {
+        method: "POST",
+        url: "/comments",
+        data: {
+          content,
+          post: postId,
+        },
+      };
+      const response = await apiClient.request(options);
+      return { comment: response.data.comment, postId };
+    } catch (error) {
+      console.error("Add comment failed:", error);
+      throw error;
+    }
+  },
 );
 
 const postsSlice = createSlice({
@@ -79,7 +100,7 @@ const postsSlice = createSlice({
     builder.addCase(updatePost.fulfilled, (state, action) => {
       console.log("post updated successfully", action.payload);
       const updatedPost = action.payload.post;
-      
+
       if (state.posts) {
         state.posts = state.posts.map((post) => {
           if (post._id === updatedPost._id) {
@@ -87,10 +108,12 @@ const postsSlice = createSlice({
             return {
               ...post,
               ...updatedPost,
-              user: (typeof updatedPost.user === 'object' && updatedPost.user !== null) 
-                ? updatedPost.user 
-                : post.user,
-              comments: updatedPost.comments || post.comments || []
+              user:
+                typeof updatedPost.user === "object" &&
+                updatedPost.user !== null
+                  ? updatedPost.user
+                  : post.user,
+              comments: updatedPost.comments || post.comments || [],
             };
           }
           return post;
@@ -100,10 +123,11 @@ const postsSlice = createSlice({
         state.postDetails = {
           ...state.postDetails,
           ...updatedPost,
-          user: (typeof updatedPost.user === 'object' && updatedPost.user !== null) 
-            ? updatedPost.user 
-            : state.postDetails.user,
-          comments: updatedPost.comments || state.postDetails.comments || []
+          user:
+            typeof updatedPost.user === "object" && updatedPost.user !== null
+              ? updatedPost.user
+              : state.postDetails.user,
+          comments: updatedPost.comments || state.postDetails.comments || [],
         };
       }
       toast.success("Post updated successfully");
@@ -112,9 +136,35 @@ const postsSlice = createSlice({
       console.log("post update failed");
       toast.error("Failed to update post");
     });
+    builder.addCase(addComment.fulfilled, (state, action) => {
+      const { comment, postId } = action.payload;
+      if (state.posts) {
+        state.posts = state.posts.map((post) => {
+          if (post._id === postId) {
+            return {
+              ...post,
+              comments: [...(post.comments || []), comment],
+            };
+          }
+          return post;
+        });
+      }
+      if (state.postDetails && state.postDetails._id === postId) {
+        state.postDetails = {
+          ...state.postDetails,
+          comments: [...(state.postDetails.comments || []), comment],
+        };
+      }
+      toast.success("Comment added successfully");
+    });
+    builder.addCase(addComment.rejected, (state, action) => {
+      toast.error("Failed to add comment");
+    });
     builder.addCase(DeleteUserPost.fulfilled, (state, action) => {
       if (state.posts) {
-        state.posts = state.posts.filter((post) => post._id !== action.meta.arg);
+        state.posts = state.posts.filter(
+          (post) => post._id !== action.meta.arg,
+        );
       }
       if (state.postDetails && state.postDetails._id === action.meta.arg) {
         state.postDetails = null;

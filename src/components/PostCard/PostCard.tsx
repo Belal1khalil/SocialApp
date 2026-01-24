@@ -18,6 +18,7 @@ import Link from "next/link";
 import { apiClient } from "@/services/api-client";
 import { FaDeleteLeft } from "react-icons/fa6";
 import { DeleteUserPost } from "@/store/features/user.slice";
+import CommentForm from "../Commentform/CommentForm";
 
 interface PostCardProps {
   post: Post;
@@ -302,6 +303,8 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
         </div>
       )}
+
+      <CommentForm postId={post._id} />
     </div>
   );
 }
