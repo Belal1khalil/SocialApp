@@ -10,8 +10,11 @@ export default function CommentCard({ commentInfo }: { commentInfo: Comment }) {
   const dispatch = useAppDispatch();
   const { userData } = useAppSelector((state) => state.userReducer);
   const [isEditing, setIsEditing] = useState(false);
-  const [editContent, setEditContent] = useState(commentInfo.content);
+  const [editContent, setEditContent] = useState(commentInfo?.content || "");
   const [isLoading, setIsLoading] = useState(false);
+
+  if (!commentInfo) return null;
+
 
   const isOwner = userData?._id === commentInfo?.commentCreator?._id;
 

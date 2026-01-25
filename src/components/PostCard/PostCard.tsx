@@ -296,9 +296,10 @@ export default function PostCard({ post }: PostCardProps) {
 
           <div className="space-y-3">
             {post.comments
+              .filter((comment) => !!comment)
               .slice(0, showAllComments ? post.comments.length : 1)
-              .map((comment) => (
-                <CommentCard key={comment?._id} commentInfo={comment} />
+              .map((comment, index) => (
+                <CommentCard key={comment?._id || index} commentInfo={comment} />
               ))}
           </div>
         </div>

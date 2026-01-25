@@ -215,7 +215,7 @@ const userSlice = createSlice({
       const { comment, postId } = action.payload;
       if (state.userPosts) {
         state.userPosts = state.userPosts.map((post) => {
-          if (post._id === postId) {
+          if (post._id === postId && comment) {
             return {
               ...post,
               comments: [...(post.comments || []), comment],

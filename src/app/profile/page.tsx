@@ -274,8 +274,8 @@ export default function ProfilePage() {
           <h2 className="text-2xl font-bold text-gray-800 px-4">My Posts</h2>
           {userPosts && userPosts.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 max-w-2xl mx-auto">
-              {userPosts.map((post, index) => (
-                <PostCard key={post._id || index} post={post} />
+              {userPosts.map((post) => (
+                <PostCard key={post._id} post={post} />
               ))}
             </div>
           ) : (

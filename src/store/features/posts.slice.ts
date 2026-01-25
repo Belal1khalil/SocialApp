@@ -175,7 +175,7 @@ const postsSlice = createSlice({
       const { comment, postId } = action.payload;
       if (state.posts) {
         state.posts = state.posts.map((post) => {
-          if (post?._id === postId) {
+          if (post?._id === postId && comment) {
             return {
               ...post,
               comments: [...(post.comments || []), comment],
@@ -184,7 +184,7 @@ const postsSlice = createSlice({
           return post;
         });
       }
-      if (state.postDetails && state.postDetails?._id === postId) {
+      if (state.postDetails && state.postDetails?._id === postId && comment) {
         state.postDetails = {
           ...state.postDetails,
           comments: [...(state.postDetails.comments || []), comment],
